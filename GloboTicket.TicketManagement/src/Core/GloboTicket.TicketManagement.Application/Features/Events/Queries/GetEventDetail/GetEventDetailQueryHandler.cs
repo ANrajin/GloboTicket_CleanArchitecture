@@ -6,7 +6,7 @@ using MediatR;
 
 namespace GloboTicket.TicketManagement.Application.Features.Events.Queries.GetEventDetail
 {
-    public class GetEventDetailQueryHandler : IRequestHandler<GetEventDeatilQuery, EventDetailVm>
+    public class GetEventDetailQueryHandler : IRequestHandler<GetEventDetailQuery, EventDetailVm>
     {
         private readonly IAsyncRepository<Event> _eventRepository;
         private readonly IAsyncRepository<Category> _categoryRepository;
@@ -21,7 +21,7 @@ namespace GloboTicket.TicketManagement.Application.Features.Events.Queries.GetEv
             _mapper = mapper;
         }
 
-        public async Task<EventDetailVm> Handle(GetEventDeatilQuery request, CancellationToken cancellationToken)
+        public async Task<EventDetailVm> Handle(GetEventDetailQuery request, CancellationToken cancellationToken)
         {
             var @event = await GetEventDetailAsync(request.Id);
             var eventDetailDto = _mapper.Map<EventDetailVm>(@event);
