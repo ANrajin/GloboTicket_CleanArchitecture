@@ -1,20 +1,30 @@
-﻿using GloboTicket.TicketManagement.Domain.Common;
+﻿using GloboTicket.TicketManagement.Application.Contracts;
+using GloboTicket.TicketManagement.Application.Contracts.Persistence;
+using GloboTicket.TicketManagement.Domain.Common;
 using GloboTicket.TicketManagement.Domain.Entities;
 using GloboTicket.TicketManagement.Persistence.Seeds;
 using Microsoft.EntityFrameworkCore;
 
 namespace GloboTicket.TicketManagement.Persistence.Contexts
 {
-    public class GloboTicketDbContext : DbContext
+    public class GloboTicketDbContext : DbContext, IGloboTicketDbContext
     {
+        private readonly ILoggedInUserService _loggedInUserService;
+
         public GloboTicketDbContext(DbContextOptions<GloboTicketDbContext> options)
             : base(options)
         {
         }
 
-        public DbSet<Event> Events { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<Order> Orders { get; set; }
+        public GloboTicketDbContext(DbContextOptions<GloboTicketDbContext> options,
+            ILoggedInUserService loggedInUserService) : base(options)
+        {
+            _loggedInUserService = loggedInUserService;
+        }
+
+        public DbSet<Event> Events => Set<Event>();
+        public DbSet<Category> Categories => Set<Category>();
+        public DbSet<Order> Orders => Set<Order>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -33,9 +43,11 @@ namespace GloboTicket.TicketManagement.Persistence.Contexts
                 {
                     case EntityState.Added:
                         entry.Entity.CreatedDate = DateTime.Now;
+                        entry.Entity.CreatedBy = _loggedInUserService.UserId;
                         break;
                     case EntityState.Modified:
                         entry.Entity.LastModifiedDate = DateTime.Now;
+                        entry.Entity.LastModifiedBy = _loggedInUserService.UserId;
                         break;
                 }
             }
